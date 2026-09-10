@@ -77,6 +77,10 @@ static bool find_writeable_path(path *dst, const char *own_env_name, const char 
     if(sdl_env(&tmp)) {
         goto ok;
     }
+#if defined(__SWITCH__)
+    str_from_c(&tmp, "sdmc:/switch/openomf");
+    goto ok;
+#endif
     return false;
 
 ok:
@@ -117,6 +121,25 @@ static bool scan_potential_resource_dirs(path *result, const str *src, const cha
 static bool find_resource_path(path *dst) {
     str tmp;
     path_clear(dst);
+#if defined(__SWITCH__)
+    str romfs_str;
+    str_from_c(&romfs_str, "romfs:");
+    if(scan_potential_resource_dirs(dst, &romfs_str, "resources/openomf.bk", "/")) {
+        log_debug("Resources found in romfs: %s", path_c(dst));
+        str_free(&romfs_str);
+        return true;
+    }
+    str_free(&romfs_str);
+
+    str sdmc_str;
+    str_from_c(&sdmc_str, "sdmc:/switch/openomf");
+    if(scan_potential_resource_dirs(dst, &sdmc_str, "resources/openomf.bk", "/")) {
+        log_debug("Resources found in sdmc: %s", path_c(dst));
+        str_free(&sdmc_str);
+        return true;
+    }
+    str_free(&sdmc_str);
+#endif
     if(env_str(&tmp, OPENOMF_RESOURCE_PATH)) {
         if(scan_potential_resource_dirs(dst, &tmp, "resources/openomf.bk", "/")) {
             log_debug("Resources found in %s: %s", OPENOMF_RESOURCE_PATH, path_c(dst));

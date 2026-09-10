@@ -66,25 +66,70 @@ bool scan_save_directory(list *results, const char *pattern) {
 path get_shader_filename(const char *shader_name) {
     path name = get_resource_dir();
     path_append(&name, "shaders", shader_name);
+    if(path_exists(&name)) {
+        return name;
+    }
+#if defined(__SWITCH__)
+    path romfs_name;
+    path_from_parts(&romfs_name, "romfs:/shaders", shader_name);
+    if(path_exists(&romfs_name)) {
+        return romfs_name;
+    }
+#endif
     return name;
 }
 
 path get_game_controller_db_filename(void) {
     path name = get_resource_dir();
     path_append(&name, "resources", "gamecontrollerdb.txt");
+    if(path_exists(&name)) {
+        return name;
+    }
+    path fallback = get_resource_dir();
+    path_append(&fallback, "gamecontrollerdb.txt");
+    if(path_exists(&fallback)) {
+        return fallback;
+    }
+#if defined(__SWITCH__)
+    path romfs_name;
+    path_from_c(&romfs_name, "romfs:/resources/gamecontrollerdb/gamecontrollerdb.txt");
+    if(path_exists(&romfs_name)) {
+        return romfs_name;
+    }
+#endif
     return name;
 }
 
 path get_resource_filename(const char *resource_name) {
     path name = get_resource_dir();
     path_append(&name, "resources", resource_name);
+    if(path_exists(&name)) {
+        return name;
+    }
+    path fallback = get_resource_dir();
+    path_append(&fallback, resource_name);
+    if(path_exists(&fallback)) {
+        return fallback;
+    }
+#if defined(__SWITCH__)
+    path romfs_name;
+    path_from_parts(&romfs_name, "romfs:/resources", resource_name);
+    if(path_exists(&romfs_name)) {
+        return romfs_name;
+    }
+#endif
     return name;
 }
 
 bool scan_resource_path(list *results, const char *pattern) {
     path scan = get_resource_dir();
     path_append(&scan, "resources");
-    return path_glob(&scan, results, pattern);
+    bool found = path_glob(&scan, results, pattern);
+    if(!found || list_size(results) == 0) {
+        path scan2 = get_resource_dir();
+        found = path_glob(&scan2, results, pattern);
+    }
+    return found;
 }
 
 // There are 2 mod paths, a "system" one and a user one

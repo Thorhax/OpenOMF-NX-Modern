@@ -9,6 +9,9 @@ OPTION(USE_FATAL_SANITIZERS "Make Asan and Ubsan errors fatal" OFF)
 OPTION(USE_TIDY "Use clang-tidy for checks" OFF)
 OPTION(USE_FORMAT "Use clang-format for checks" OFF)
 OPTION(BUILD_LANGUAGES "Build Language Files" ON)
+if(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+    set(BUILD_LANGUAGES OFF)
+endif()
 OPTION(USE_COLORS "Use colors in log output" ON)
 OPTION(USE_OPUSFILE "Support ogg/opus music files" ON)
 OPTION(USE_EXTENDED_PALETTE "Use 1024-color extended palette instead of 256" ON)
@@ -33,6 +36,9 @@ project(OpenOMF C)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(USE_PCH ON)
+if(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+    set(USE_PCH OFF)
+endif()
 if(USE_PCH AND USE_TIDY)
     message(WARNING "clang-tidy is broken with PCH. Disabling PCH.")
     set(USE_PCH OFF)
@@ -276,7 +282,7 @@ if(WIN32)
 endif()
 
 # Only strip on GCC (clang does not appreciate)
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" AND NOT CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wl,-s")
     set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Wl,-s")
 endif()
@@ -425,7 +431,7 @@ endif()
 
 # Make sure libraries are linked
 target_link_libraries(openomf PRIVATE ${CORELIBS})
-target_link_libraries(openomf PRIVATE openomf::argtable openomf::zip openomf::SDL2main openomf::epoxy)
+target_link_libraries(openomf PRIVATE openomf::argtable openomf::zip openomf::SDL2main openomf::epoxy openomf::enet)
 foreach(TARGET ${TOOL_TARGET_NAMES})
     target_link_libraries(${TARGET} PRIVATE ${CORELIBS})
     target_link_libraries(${TARGET} PRIVATE openomf::argtable openomf::zip openomf::SDL2main openomf::epoxy)
@@ -497,4 +503,31 @@ else()
         COMPONENT Data
     )
     install(DIRECTORY shaders/ DESTINATION share/games/openomf/shaders COMPONENT Data)
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+    set(APP_TITLE "OpenOMF")
+    set(APP_AUTHOR "omf2097 / Thorhax")
+    set(APP_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+
+    set(NACP_FILE "${CMAKE_CURRENT_BINARY_DIR}/openomf.nacp")
+    nx_generate_nacp(OUTPUT "${NACP_FILE}"
+        NAME "${APP_TITLE}"
+        AUTHOR "${APP_AUTHOR}"
+        VERSION "${APP_VERSION}"
+    )
+
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/icon.jpg")
+        set(APP_ICON "${CMAKE_CURRENT_SOURCE_DIR}/icon.jpg")
+    else()
+        set(APP_ICON "${NX_DEFAULT_ICON}")
+    endif()
+
+    nx_create_nro(openomf_nro
+        TARGET openomf
+        OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/openomf.nro"
+        NACP "${NACP_FILE}"
+        ICON "${APP_ICON}"
+        ROMFS "${CMAKE_CURRENT_SOURCE_DIR}/romfs"
+    )
 endif()

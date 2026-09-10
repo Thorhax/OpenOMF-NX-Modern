@@ -1431,7 +1431,7 @@ static const char noarg[] = "option doesn't take an argument -- %.*s";
 static const char illoptstring[] = "unknown option -- %s";
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__SWITCH__)
 
 /*
  * Windows needs warnx().  We change the definition though:
@@ -1459,7 +1459,9 @@ static void warnx(const char* fmt, ...) {
      */
     memset(opterrmsg, 0, sizeof(opterrmsg));
     if (fmt != NULL)
-#if (defined(__STDC_LIB_EXT1__) && defined(__STDC_WANT_LIB_EXT1__)) || (defined(__STDC_SECURE_LIB__) && defined(__STDC_WANT_SECURE_LIB__))
+#if defined(__SWITCH__)
+        vsnprintf(opterrmsg, sizeof(opterrmsg) - 1, fmt, ap);
+#elif (defined(__STDC_LIB_EXT1__) && defined(__STDC_WANT_LIB_EXT1__)) || (defined(__STDC_SECURE_LIB__) && defined(__STDC_WANT_SECURE_LIB__))
         _vsnprintf_s(opterrmsg, sizeof(opterrmsg), sizeof(opterrmsg) - 1, fmt, ap);
 #else
         _vsnprintf(opterrmsg, sizeof(opterrmsg) - 1, fmt, ap);

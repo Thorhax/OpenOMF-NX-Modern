@@ -20,6 +20,10 @@
 #include <string.h>
 #include <time.h>
 
+#if defined(__SWITCH__)
+#include <switch.h>
+#endif
+
 #ifndef SHA1_HASH
 static const char *git_sha1_hash = "";
 #else
@@ -53,6 +57,10 @@ void scan_game_controllers(void) {
 }
 
 int main(int argc, char *argv[]) {
+#if defined(__SWITCH__)
+    romfsInit();
+    socketInitializeDefault();
+#endif
     // Set up initial state for misc things
     char *ip = NULL;
     char *lobbyaddr = NULL;
@@ -315,5 +323,9 @@ exit_0:
         omf_free(trace_file);
     }
     arg_freetable(argtable, N_ELEMENTS(argtable));
+#if defined(__SWITCH__)
+    socketExit();
+    romfsExit();
+#endif
     return retval;
 }

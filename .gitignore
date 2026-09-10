@@ -24,3 +24,7 @@ test.bk
 test.trn
 test.rec
 
+build-switch/
+*.nro
+*.elf
+*.nacp

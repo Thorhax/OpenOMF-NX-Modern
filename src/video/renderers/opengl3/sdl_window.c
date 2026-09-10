@@ -11,6 +11,12 @@ bool create_gl_context(SDL_GLContext **context, SDL_Window *window) {
         log_error("Could not acquire OpenGL context: %s", SDL_GetError());
         return false;
     }
+#if defined(__SWITCH__)
+    if(!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+        log_error("Could not initialize GLAD!");
+        return false;
+    }
+#endif
     log_info("OpenGL context acquired!");
     log_info(" * Vendor: %s", glGetString(GL_VENDOR));
     log_info(" * Renderer: %s", glGetString(GL_RENDERER));
@@ -48,6 +54,11 @@ void ortho2d(GLfloat *matrix, float left, float right, float bottom, float top) 
 }
 
 bool has_gl_available(int version_major, int version_minor) {
+#if defined(__SWITCH__)
+    (void)version_major;
+    (void)version_minor;
+    return true;
+#else
     SDL_Window *w;
     SDL_GLContext *c;
     bool ret = false;
@@ -71,6 +82,7 @@ exit_1:
     SDL_DestroyWindow(w);
 exit_0:
     return ret;
+#endif
 }
 
 bool create_window(SDL_Window **window, int width, int height, bool fullscreen) {
