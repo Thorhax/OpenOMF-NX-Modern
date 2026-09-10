@@ -60,6 +60,7 @@ int main(int argc, char *argv[]) {
 #if defined(__SWITCH__)
     romfsInit();
     socketInitializeDefault();
+    nxlinkStdio();
 #endif
     // Set up initial state for misc things
     char *ip = NULL;
@@ -186,7 +187,10 @@ int main(int argc, char *argv[]) {
 #else
     log_set_colors(false);
 #endif
-#if defined(DEBUGMODE)
+#if defined(__SWITCH__)
+    log_add_stderr(LOG_DEBUG, false);
+    log_set_level(LOG_DEBUG);
+#elif defined(DEBUGMODE)
     log_add_stderr(LOG_DEBUG, true);
     log_set_level(LOG_DEBUG);
 #else
@@ -208,7 +212,11 @@ int main(int argc, char *argv[]) {
 
     // Initialize logfile writing now that we have the directories.
     const path log_filename = get_log_filename();
+#if defined(__SWITCH__)
+    log_add_file(path_c(&log_filename), LOG_DEBUG);
+#else
     log_add_file(path_c(&log_filename), LOG_INFO);
+#endif
 
     // Simple header
     log_info("Starting OpenOMF v%s", get_version_string());
