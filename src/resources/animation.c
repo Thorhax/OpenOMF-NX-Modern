@@ -57,8 +57,10 @@ void animation_create(animation_source type, str *name, animation *ani, array *s
             // TODO check the mod overrides for a replacement sprite
             if(modmanager_get_sprite(type, name, ani->id, i, &sp)) {
                 sprite_create(tmp_sprite, (void *)sp, i);
-                tmp_sprite->data->render_w = src_sprite->width;
-                tmp_sprite->data->render_h = src_sprite->height;
+                if(tmp_sprite->data != NULL) {
+                    tmp_sprite->data->render_w = src_sprite->width;
+                    tmp_sprite->data->render_h = src_sprite->height;
+                }
                 tmp_sprite->pos = src_sprite->pos;
             } else {
                 sprite_create(tmp_sprite, (void *)src_sprite, i);

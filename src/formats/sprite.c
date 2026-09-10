@@ -69,6 +69,17 @@ int sd_sprite_load(sd_reader *r, sd_sprite *sprite) {
         sd_read_buf(r, sprite->data, sprite->len);
     } else {
         sprite->data = NULL;
+        sprite->width = 0;
+        sprite->height = 0;
+        sprite->render_width = 0;
+        sprite->render_height = 0;
+    }
+
+    if(sprite->width > 1024 || sprite->height > 1024) {
+        sprite->width = 0;
+        sprite->height = 0;
+        sprite->render_width = 0;
+        sprite->render_height = 0;
     }
 
     if(!sd_reader_ok(r)) {

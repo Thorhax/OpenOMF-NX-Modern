@@ -49,7 +49,7 @@ float noise(in vec2 v) {
 //
 // Output channels:
 //   R: palette index / 1023.0
-//   G: (remap_offset + remap_rounds * 19 [+ index]) / 255.0 -- decoded by rgba.frag
+//   G: (remap_offset + remap_rounds * 19) / 255.0 -- decoded by rgba.frag
 //   B: dark tint palette index / 1023.0
 //   A: additive index (index * 60) / 1023.0
 vec4 handle(int index) {
@@ -60,7 +60,7 @@ vec4 handle(int index) {
         return vec4(0.0, remap, float(index) / 1023.0, 0.0);
     }
     if (remap_rounds > 0) {
-        float remap = float(remap_offset + remap_rounds * 19 + index) / 255.0;
+        float remap = float(remap_offset + remap_rounds * 19) / 255.0;
         return vec4(0.0, remap, 0.0, 0.0);
     }
     if (SPRITE_INDEX_ADD) {

@@ -356,7 +356,7 @@ void object_render(object *obj) {
     }
 
     const sprite *cur_sprite = animation_get_sprite(obj->cur_animation, obj->cur_sprite_id);
-    if(cur_sprite == NULL) {
+    if(cur_sprite == NULL || cur_sprite->data == NULL) {
         return;
     }
 
@@ -444,7 +444,7 @@ void object_render_shadow(object *obj) {
     }
 
     const sprite *cur_sprite = animation_get_sprite(obj->cur_animation, obj->cur_sprite_id);
-    if(cur_sprite == NULL) {
+    if(cur_sprite == NULL || cur_sprite->data == NULL) {
         return;
     }
 

@@ -14,7 +14,8 @@ void sprite_create(sprite *sp, void *src, int id) {
     sp->id = id;
     sp->pos = sdsprite->pos;
 
-    if(sdsprite->width == 0 || sdsprite->height == 0) {
+    if(sdsprite->len == 0 || sdsprite->data == NULL || sdsprite->width == 0 || sdsprite->height == 0 ||
+       sdsprite->width > 1024 || sdsprite->height > 1024) {
         sp->data = NULL;
         sp->owned = false;
         return;
