@@ -596,6 +596,14 @@ void melee_input_tick(scene *scene) {
     melee_local *local = scene_get_userdata(scene);
     game_player *player1 = game_state_get_player(scene->gs, 0);
     game_player *player2 = game_state_get_player(scene->gs, 1);
+#if defined(__SWITCH__)
+    if(!player1->ctrl || player1->ctrl->type != CTRL_TYPE_GAMEPAD) {
+        _setup_joystick(scene->gs, 0, "Switch Controller", 0);
+    }
+    if(player2->selectable && (!player2->ctrl || player2->ctrl->type != CTRL_TYPE_GAMEPAD)) {
+        _setup_joystick(scene->gs, 1, "Switch Controller", 1);
+    }
+#endif
     ctrl_event *p1 = NULL, *p2 = NULL, *i;
     controller_poll(player1->ctrl, &p1);
     controller_poll(player2->ctrl, &p2);
@@ -914,6 +922,14 @@ int melee_create(scene *scene) {
         load_pilot_portraits_palette(scene);
     }
 
+#if defined(__SWITCH__)
+    if(!player1->ctrl || player1->ctrl->type != CTRL_TYPE_GAMEPAD) {
+        _setup_joystick(scene->gs, 0, "Switch Controller", 0);
+    }
+    if(player2->selectable && (!player2->ctrl || player2->ctrl->type != CTRL_TYPE_GAMEPAD)) {
+        _setup_joystick(scene->gs, 1, "Switch Controller", 1);
+    }
+#endif
     controller *player1_ctrl = game_player_get_ctrl(player1);
     controller *player2_ctrl = game_player_get_ctrl(player2);
 

@@ -18,12 +18,16 @@ void mainmenu_1v1(component *c, void *userdata) {
     scene *s = userdata;
 
     // Set up controllers
+#if defined(__SWITCH__)
+    _setup_joystick(s->gs, 0, "Switch Controller", 0);
+#else
     settings_keyboard *k = &settings_get()->keys;
     if(k->ctrl_type1 == CTRL_TYPE_KEYBOARD) {
         _setup_keyboard(s->gs, 0, 0);
     } else if(k->ctrl_type1 == CTRL_TYPE_GAMEPAD) {
         _setup_joystick(s->gs, 0, k->joy_name1, k->joy_offset1);
     }
+#endif
 
     chr_score_set_difficulty(game_player_get_score(game_state_get_player(s->gs, 0)),
                              settings_get()->gameplay.difficulty);
@@ -45,6 +49,10 @@ void mainmenu_1v1(component *c, void *userdata) {
 void mainmenu_1v2(component *c, void *userdata) {
     scene *s = userdata;
 
+#if defined(__SWITCH__)
+    _setup_joystick(s->gs, 0, "Switch Controller", 0);
+    _setup_joystick(s->gs, 1, "Switch Controller", 1);
+#else
     settings_keyboard *k = &settings_get()->keys;
     if(k->ctrl_type1 == CTRL_TYPE_KEYBOARD) {
         _setup_keyboard(s->gs, 0, 0);
@@ -57,6 +65,7 @@ void mainmenu_1v2(component *c, void *userdata) {
     } else if(k->ctrl_type2 == CTRL_TYPE_GAMEPAD) {
         _setup_joystick(s->gs, 1, k->joy_name2, k->joy_offset2);
     }
+#endif
 
     chr_score_set_difficulty(game_player_get_score(game_state_get_player(s->gs, 0)), AI_DIFFICULTY_CHAMPION);
     chr_score_set_difficulty(game_player_get_score(game_state_get_player(s->gs, 1)), AI_DIFFICULTY_CHAMPION);

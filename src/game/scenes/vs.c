@@ -288,6 +288,11 @@ void vs_input_tick(scene *scene) {
     }
     controller_free_chain(menu_ev);
 
+#if defined(__SWITCH__)
+    if(!player1->ctrl || player1->ctrl->type != CTRL_TYPE_GAMEPAD) {
+        _setup_joystick(scene->gs, 0, "Switch Controller", 0);
+    }
+#endif
     ctrl_event *p1 = NULL, *i;
     controller_poll(player1->ctrl, &p1);
     i = p1;

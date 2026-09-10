@@ -118,9 +118,15 @@ const field f_advanced[] = {
 
 const field f_keyboard[] = {
     // Player one
+#if defined(__SWITCH__)
+    F_INT(settings_keyboard, ctrl_type1, CTRL_TYPE_GAMEPAD),
+    F_STRING(settings_keyboard, joy_name1, "Switch Controller"),
+    F_INT(settings_keyboard, joy_offset1, 0),
+#else
     F_INT(settings_keyboard, ctrl_type1, CTRL_TYPE_KEYBOARD),
     F_STRING(settings_keyboard, joy_name1, "None"),
     F_INT(settings_keyboard, joy_offset1, -1),
+#endif
     F_STRING(settings_keyboard, key1_jump_up, "Up"),
     F_STRING(settings_keyboard, key1_jump_right, "PageUp"),
     F_STRING(settings_keyboard, key1_walk_right, "Right"),
@@ -134,9 +140,15 @@ const field f_keyboard[] = {
     F_INT(settings_keyboard, input1_delay, 0),
 
     // Player two
+#if defined(__SWITCH__)
+    F_INT(settings_keyboard, ctrl_type2, CTRL_TYPE_GAMEPAD),
+    F_STRING(settings_keyboard, joy_name2, "Switch Controller"),
+    F_INT(settings_keyboard, joy_offset2, 1),
+#else
     F_INT(settings_keyboard, ctrl_type2, CTRL_TYPE_KEYBOARD),
     F_STRING(settings_keyboard, joy_name2, "None"),
     F_INT(settings_keyboard, joy_offset2, -1),
+#endif
     F_STRING(settings_keyboard, key2_jump_up, "W"),
     F_STRING(settings_keyboard, key2_jump_right, "E"),
     F_STRING(settings_keyboard, key2_walk_right, "D"),
@@ -327,6 +339,21 @@ void settings_load(void) {
         const struct_to_field *s2f = &struct_to_fields[i];
         settings_load_fields(s2f->_struct, s2f->fields, s2f->num_fields);
     }
+#if defined(__SWITCH__)
+    settings_keyboard *k = &settings_get()->keys;
+    k->ctrl_type1 = CTRL_TYPE_GAMEPAD;
+    k->ctrl_type2 = CTRL_TYPE_GAMEPAD;
+    if(!k->joy_name1 || strcmp(k->joy_name1, "None") == 0 || strlen(k->joy_name1) == 0) {
+        omf_free(k->joy_name1);
+        k->joy_name1 = omf_strdup("Switch Controller");
+        k->joy_offset1 = 0;
+    }
+    if(!k->joy_name2 || strcmp(k->joy_name2, "None") == 0 || strlen(k->joy_name2) == 0) {
+        omf_free(k->joy_name2);
+        k->joy_name2 = omf_strdup("Switch Controller");
+        k->joy_offset2 = 1;
+    }
+#endif
 }
 
 void settings_save(void) {

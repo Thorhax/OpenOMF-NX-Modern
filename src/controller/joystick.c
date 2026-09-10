@@ -133,9 +133,12 @@ static int internal_joystick_poll(joystick *k, controller *ctrl, ctrl_event **ev
     }
 
     // button input
-    if(SDL_GameControllerGetButton(k->joy, k->keys->punch)) {
+    if(SDL_GameControllerGetButton(k->joy, k->keys->punch) ||
+       SDL_GameControllerGetButton(k->joy, SDL_CONTROLLER_BUTTON_Y)) {
         action |= ACT_PUNCH;
-    } else if(SDL_GameControllerGetButton(k->joy, k->keys->kick)) {
+    }
+    if(SDL_GameControllerGetButton(k->joy, k->keys->kick) ||
+       SDL_GameControllerGetButton(k->joy, SDL_CONTROLLER_BUTTON_X)) {
         action |= ACT_KICK;
     }
 
@@ -143,7 +146,8 @@ static int internal_joystick_poll(joystick *k, controller *ctrl, ctrl_event **ev
         joystick_cmd(ctrl, action, ev);
     }
 
-    if(allow_esc && SDL_GameControllerGetButton(k->joy, k->keys->escape)) {
+    if(allow_esc && (SDL_GameControllerGetButton(k->joy, k->keys->escape) ||
+                     SDL_GameControllerGetButton(k->joy, SDL_CONTROLLER_BUTTON_BACK))) {
         joystick_cmd(ctrl, ACT_ESC, ev);
     }
 

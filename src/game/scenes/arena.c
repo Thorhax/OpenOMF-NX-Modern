@@ -1418,6 +1418,14 @@ void arena_input_tick(scene *scene) {
     if(!game_state_is_paused(scene->gs)) {
         game_player *player1 = game_state_get_player(scene->gs, 0);
         game_player *player2 = game_state_get_player(scene->gs, 1);
+#if defined(__SWITCH__)
+        if(!player1->ctrl || player1->ctrl->type != CTRL_TYPE_GAMEPAD) {
+            _setup_joystick(scene->gs, 0, "Switch Controller", 0);
+        }
+        if(player2->selectable && (!player2->ctrl || player2->ctrl->type != CTRL_TYPE_GAMEPAD)) {
+            _setup_joystick(scene->gs, 1, "Switch Controller", 1);
+        }
+#endif
 
         ctrl_event *p1 = NULL, *p2 = NULL;
         controller_poll(player1->ctrl, &p1);

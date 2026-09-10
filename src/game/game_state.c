@@ -1113,6 +1113,10 @@ int game_state_num_players(game_state *gs) {
 }
 
 void _setup_keyboard(game_state *gs, int player_id, int control_id) {
+#if defined(__SWITCH__)
+    _setup_joystick(gs, player_id, "Switch Controller", player_id);
+    return;
+#endif
     settings_keyboard *k = &settings_get()->keys;
     // Set up controller
     controller *ctrl = omf_calloc(1, sizeof(controller));
@@ -1175,7 +1179,16 @@ int _setup_joystick(game_state *gs, int player_id, const char *joyname, int offs
     game_player *player = game_state_get_player(gs, player_id);
     controller_init(ctrl, gs);
 
-    int res = joystick_create(ctrl, joystick_name_to_id(joyname, offset));
+    int joy_id = joystick_name_to_id(joyname, offset);
+    if(joy_id < 0) {
+        if(player_id < SDL_NumJoysticks()) {
+            joy_id = player_id;
+        } else if(SDL_NumJoysticks() > 0) {
+            joy_id = 0;
+        }
+    }
+
+    int res = joystick_create(ctrl, joy_id);
     if(player_id == 0) {
         controller_set_delay(ctrl, settings_get()->keys.input1_delay);
     } else {
@@ -1196,6 +1209,11 @@ static void _setup_rec_controller(game_state *gs, int player_id, sd_rec_file *re
 }
 
 void reconfigure_controller(game_state *gs) {
+#if defined(__SWITCH__)
+    _setup_joystick(gs, 0, "Switch Controller", 0);
+    _setup_joystick(gs, 1, "Switch Controller", 1);
+    return;
+#endif
     settings_keyboard *k = &settings_get()->keys;
     if(k->ctrl_type1 == CTRL_TYPE_KEYBOARD) {
         _setup_keyboard(gs, 0, 0);
