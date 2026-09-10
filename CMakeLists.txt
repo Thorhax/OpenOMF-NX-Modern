@@ -507,7 +507,7 @@ endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
     set(APP_TITLE "OpenOMF")
-    set(APP_AUTHOR "omf2097 / Thorhax")
+    set(APP_AUTHOR "Thorhax")
     set(APP_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
     set(NACP_FILE "${CMAKE_CURRENT_BINARY_DIR}/openomf.nacp")

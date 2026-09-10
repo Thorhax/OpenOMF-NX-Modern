@@ -132,15 +132,25 @@ static int internal_joystick_poll(joystick *k, controller *ctrl, ctrl_event **ev
         action = ACT_DOWN;
     }
 
-    // button input
-    if(SDL_GameControllerGetButton(k->joy, SDL_CONTROLLER_BUTTON_Y) ||
-       SDL_GameControllerGetButton(k->joy, SDL_CONTROLLER_BUTTON_B) ||
-       SDL_GameControllerGetButton(k->joy, k->keys->punch)) {
+    SDL_Joystick *joy = SDL_GameControllerGetJoystick(k->joy);
+
+    // button input:
+    // On Nintendo Switch:
+    // Physical Y is SDL_CONTROLLER_BUTTON_X (raw button 3)
+    // Physical B is SDL_CONTROLLER_BUTTON_A (raw button 1)
+    // Physical X is SDL_CONTROLLER_BUTTON_Y (raw button 2)
+    // Physical A is SDL_CONTROLLER_BUTTON_B (raw button 0)
+    // User requested: Y and B being punch, X and A being kick
+    if(SDL_GameControllerGetButton(k->joy, SDL_CONTROLLER_BUTTON_A) ||
+       SDL_GameControllerGetButton(k->joy, SDL_CONTROLLER_BUTTON_X) ||
+       SDL_GameControllerGetButton(k->joy, k->keys->punch) ||
+       (joy && (SDL_JoystickGetButton(joy, 1) || SDL_JoystickGetButton(joy, 3)))) {
         action |= ACT_PUNCH;
     }
-    if(SDL_GameControllerGetButton(k->joy, SDL_CONTROLLER_BUTTON_X) ||
-       SDL_GameControllerGetButton(k->joy, SDL_CONTROLLER_BUTTON_A) ||
-       SDL_GameControllerGetButton(k->joy, k->keys->kick)) {
+    if(SDL_GameControllerGetButton(k->joy, SDL_CONTROLLER_BUTTON_B) ||
+       SDL_GameControllerGetButton(k->joy, SDL_CONTROLLER_BUTTON_Y) ||
+       SDL_GameControllerGetButton(k->joy, k->keys->kick) ||
+       (joy && (SDL_JoystickGetButton(joy, 0) || SDL_JoystickGetButton(joy, 2)))) {
         action |= ACT_KICK;
     }
 
@@ -149,7 +159,8 @@ static int internal_joystick_poll(joystick *k, controller *ctrl, ctrl_event **ev
     }
 
     if(allow_esc && (SDL_GameControllerGetButton(k->joy, k->keys->escape) ||
-                     SDL_GameControllerGetButton(k->joy, SDL_CONTROLLER_BUTTON_BACK))) {
+                     SDL_GameControllerGetButton(k->joy, SDL_CONTROLLER_BUTTON_BACK) ||
+                     (joy && (SDL_JoystickGetButton(joy, 10) || SDL_JoystickGetButton(joy, 11))))) {
         joystick_cmd(ctrl, ACT_ESC, ev);
     }
 
@@ -184,8 +195,8 @@ static inline void internal_joystick_default_keys(joystick_keys *keys) {
     keys->dpad[1] = SDL_CONTROLLER_BUTTON_DPAD_DOWN;
     keys->dpad[2] = SDL_CONTROLLER_BUTTON_DPAD_LEFT;
     keys->dpad[3] = SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
-    keys->punch = SDL_CONTROLLER_BUTTON_B;
-    keys->kick = SDL_CONTROLLER_BUTTON_A;
+    keys->punch = SDL_CONTROLLER_BUTTON_A;
+    keys->kick = SDL_CONTROLLER_BUTTON_B;
     keys->escape = SDL_CONTROLLER_BUTTON_START;
 }
 
