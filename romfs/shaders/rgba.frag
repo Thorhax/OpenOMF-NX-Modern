@@ -35,7 +35,7 @@ void set_color(int index) {
 void main() {
     vec4 texel = textureLod(framebuffer, tex_coord, 0);
     int idx = int(texel.r * 1023.0 + 0.5);
-    int remap_enc = int(texel.g * 255.0);
+    int remap_enc = int(texel.g * 255.0 + 0.5);
     int darktint = int(texel.b * 1023.0 + 0.5);
     int idx_add = int(texel.a * 1023.0 + 0.5);
 

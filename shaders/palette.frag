@@ -60,7 +60,8 @@ vec4 handle(int index) {
         return vec4(0.0, remap, float(index) / 1023.0, 0.0);
     }
     if (remap_rounds > 0) {
-        float remap = float(remap_offset + remap_rounds * 19) / 255.0;
+        int row = clamp(remap_offset + index, 0, 18);
+        float remap = float(row + remap_rounds * 19) / 255.0;
         return vec4(0.0, remap, 0.0, 0.0);
     }
     if (SPRITE_INDEX_ADD) {
