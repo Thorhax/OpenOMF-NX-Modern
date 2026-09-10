@@ -147,18 +147,28 @@ bool fonts_init(void) {
     // Load big net font
     filename = get_resource_filename("NETFONT1.PCX");
     if(pcx_font_load(&font_net1, &filename, 3)) {
-        log_error("Unable to load font file '%s'!", path_c(&filename));
-        goto error_2;
+        log_warn("Unable to load font file '%s', falling back to GRAPHCHR.DAT", path_c(&filename));
+        path fallback_font = get_resource_filename("GRAPHCHR.DAT");
+        if(font_load(&font_net1, &fallback_font, FONT_BIG)) {
+            log_error("Unable to load fallback font file '%s'!", path_c(&fallback_font));
+            goto error_2;
+        }
+    } else {
+        log_info("Loaded font file '%s'", path_c(&filename));
     }
-    log_info("Loaded font file '%s'", path_c(&filename));
 
     // Load small net font
     filename = get_resource_filename("NETFONT2.PCX");
     if(pcx_font_load(&font_net2, &filename, 16)) {
-        log_error("Unable to load font file '%s'!", path_c(&filename));
-        goto error_1;
+        log_warn("Unable to load font file '%s', falling back to CHARSMAL.DAT", path_c(&filename));
+        path fallback_font = get_resource_filename("CHARSMAL.DAT");
+        if(font_load(&font_net2, &fallback_font, FONT_SMALL)) {
+            log_error("Unable to load fallback font file '%s'!", path_c(&fallback_font));
+            goto error_1;
+        }
+    } else {
+        log_info("Loaded font file '%s'", path_c(&filename));
     }
-    log_info("Loaded font file '%s'", path_c(&filename));
 
     // All done.
     fonts_loaded = 1;

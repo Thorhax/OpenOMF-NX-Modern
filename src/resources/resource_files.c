@@ -92,6 +92,10 @@ path get_game_controller_db_filename(void) {
     }
 #if defined(__SWITCH__)
     path romfs_name;
+    path_from_c(&romfs_name, "romfs:/resources/gamecontrollerdb.txt");
+    if(path_exists(&romfs_name)) {
+        return romfs_name;
+    }
     path_from_c(&romfs_name, "romfs:/resources/gamecontrollerdb/gamecontrollerdb.txt");
     if(path_exists(&romfs_name)) {
         return romfs_name;

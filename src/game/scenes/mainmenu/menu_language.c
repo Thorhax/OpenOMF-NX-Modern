@@ -92,23 +92,27 @@ component *menu_language_create(scene *s) {
         path_set_ext(language_file2, str_c(&ext));
         str_free(&ext);
 
+        path actual_file2 = *language_file2;
+        if(!path_exists(&actual_file2)) {
+            str lang2_name;
+            str_from(&lang2_name, &name);
+            str_append_char(&lang2_name, '2');
+            path romfs_dat2 = get_resource_filename(str_c(&lang2_name));
+            str_free(&lang2_name);
+            if(path_exists(&romfs_dat2)) {
+                actual_file2 = romfs_dat2;
+            }
+        }
+
         sd_language lang2;
         sd_language_create(&lang2);
-        if(sd_language_load(&lang2, language_file2, false)) {
-            log_info("Warning: Unable to load OpenOMF language file '%s'!", path_c(language_file2));
-            sd_language_free(&lang2);
-            str_free(&name);
-            continue;
+        char *language_name = NULL;
+        if(sd_language_load(&lang2, &actual_file2, false) == 0 && vector_size(&lang2.strings) == LANG2_STR_COUNT) {
+            const sd_lang_string *lang_entry = vector_get(&lang2.strings, LANG2_STR_LANGUAGE);
+            language_name = omf_strdup(str_c(&lang_entry->data));
+        } else {
+            language_name = omf_strdup(str_c(&name));
         }
-        if(vector_size(&lang2.strings) != LANG2_STR_COUNT) {
-            log_info("Warning: Invalid OpenOMF language file '%s', got %u entries!", path_c(language_file2),
-                     vector_size(&lang2.strings));
-            sd_language_free(&lang2);
-            str_free(&name);
-            continue;
-        }
-        const sd_lang_string *lang_entry = vector_get(&lang2.strings, LANG2_STR_LANGUAGE);
-        char *language_name = omf_strdup(str_c(&lang_entry->data));
         sd_language_free(&lang2);
 
         if(str_match(&name, setting->language.language)) {

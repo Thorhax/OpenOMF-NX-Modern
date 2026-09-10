@@ -73,26 +73,26 @@ bool lang_init(void) {
     log_info("Loaded language file '%s'.", path_c(&language_file1));
 
     // Load up language2 file (OpenOMF)
-    path language_file2 = get_resource_filename(lang_settings->language);
-    str ext;
-    path_ext(&language_file2, &ext);
-    str_append_char(&ext, '2');
-    path_set_ext(&language_file2, str_c(&ext));
-    str_free(&ext);
+    str lang2_filename;
+    str_from_c(&lang2_filename, lang_settings->language);
+    str_append_char(&lang2_filename, '2');
+    path language_file2 = get_resource_filename(str_c(&lang2_filename));
+    str_free(&lang2_filename);
 
     language2 = omf_calloc(1, sizeof(sd_language));
     sd_language_create(language2);
     // Note: we don't load descriptions -- we don't use them.
-    if(sd_language_load(language2, &language_file2, false)) {
-        log_error("Unable to load OpenOMF language file '%s'!", path_c(&language_file2));
-        goto error_0;
+    if(sd_language_load(language2, &language_file2, false) != SD_SUCCESS ||
+       vector_size(&language2->strings) != LANG2_STR_COUNT) {
+        log_warn("Unable to load OpenOMF language file '%s', using default language name.", path_c(&language_file2));
+        vector_clear(&language2->strings);
+        sd_lang_string dummy;
+        str_from_c(&dummy.description, "language");
+        str_from_c(&dummy.data, "English");
+        vector_append(&language2->strings, &dummy);
+    } else {
+        log_info("Loaded OpenOMF language file '%s'.", path_c(&language_file2));
     }
-    if(vector_size(&language2->strings) != LANG2_STR_COUNT) {
-        log_error("Unable to load OpenOMF language file '%s', unsupported or corrupt file!", path_c(&language_file2));
-        goto error_0;
-    }
-
-    log_info("Loaded OpenOMF language file '%s'.", path_c(&language_file2));
 
     return true;
 
