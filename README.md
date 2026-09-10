@@ -1,60 +1,85 @@
-OpenOMF
-=======
+# OpenOMF for Nintendo Switch (OpenOMF-NX-Modern)
 
-[![CI](https://github.com/omf2097/openomf/actions/workflows/compilation.yml/badge.svg?branch=master)](https://github.com/omf2097/openomf/actions/workflows/compilation.yml)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20My%20Work-ff5e5b?style=flat&logo=ko-fi&logoColor=white)](https://ko-fi.com/thorhax)
+[![Build Status](https://img.shields.io/badge/devkitPro-devkitA64%20r29.2-32a852.svg)](https://devkitpro.org)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/Thorhax/OpenOMF-NX-Modern?include_prereleases&color=blue)](https://github.com/Thorhax/OpenOMF-NX-Modern/releases)
 
-![Flail vs Gargoyle](/docs/flail.png)
+A modern Nintendo Switch port of **OpenOMF** (open-source remake of *One Must Fall: 2097* by Diversions Entertainment), updated and built with devkitPro (`devkitA64`), GCC 15, libnx 4.12+, Mesa/OpenGL, and modern `switch-sdl2`.
 
-OpenOMF is an Open Source remake of "One Must Fall 2097" by Diversions
-Entertainment. Since the original DOS game from 1994 uses IPX networking and
-is a pain to set up, the community needed a better solution to keep playing
-the game we love. Together with networking, we try to make it easier to play
-One Must Fall in its original glory on multiple platforms (Linux, Mac OSX,
-Windows, BSD to name a few).
+---
 
-For more detailed information about the project, please see
-[http://www.openomf.org/](http://www.openomf.org).
+## Support My Work
 
-Installation
-------------
+If you enjoy playing retro PC classics and arcade fighters on your Nintendo Switch, consider supporting my work on Ko-fi:
 
-### AppImage
+[![Support on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/thorhax)
 
-1. Download the latest .AppImage executable from https://github.com/omf2097/openomf/releases
-2. Run `chmod +x OpenOMF-<version>-x86_64.AppImage`
-3. Play the game with `./OpenOMF-<version>-x86_64.AppImage`
+Your support helps me maintain, update, and improve homebrew ports for the Nintendo Switch!
 
-### Ubuntu
+---
 
-1. Download the latest .deb package from https://github.com/omf2097/openomf/releases
-2. Run `sudo apt install ./openomf_<version>_amd64.deb`
+## 📦 Installation Instructions
 
-### Windows
+### Quick Install (Pre-packaged Zip)
+1. Download `openomf-switch-v0.8.7.zip` from the [Releases](https://github.com/Thorhax/OpenOMF-NX-Modern/releases) section.
+2. Extract the `openomf` folder directly into `/switch/` on your SD card so that the executable path is `/switch/openomf/openomf.nro`.
+3. Ensure the game resource files (`*.DAT`, `*.BK`, `*.AF`, etc.) are located in `/switch/openomf/resources/` (included in the zip release).
+4. Launch via the Homebrew Menu (Title Override mode recommended).
 
-1. Download the latest windows package from https://github.com/omf2097/openomf/releases
-2. Extract the zip file somewhere
+### Standalone NRO
+1. Download `openomf.nro` from the [Releases](https://github.com/Thorhax/OpenOMF-NX-Modern/releases) section.
+2. Place `openomf.nro` at `sdmc:/switch/openomf/openomf.nro`.
+3. Copy the original OMF 2097 resource files into `sdmc:/switch/openomf/resources/`.
 
-Build
------
-For compiling from sources, please see [BUILD.md](BUILD.md).
+---
 
-License
--------
-OpenOMF is developed under the MIT License. Please read [LICENSE](LICENSE)
-for more information.
+## 🎮 Controls
 
-OpenOMF contains pieces of other software, which have licenses of their own:
-- resources/gamecontrollerdb.txt is under [zlib license](resources/gamecontrollerdb/LICENSE.gamecontrollerdb)
-- src/vendored/argtable3 is under multiple licenses, please see [LICENSE](src/vendored/argtable/LICENSE.argtable3)
-- src/vendored/zip and miniz is under the MIT license, please see [LICENSE](src/vendored/zip/LICENSE.zip)
+The controls are mapped to provide a familiar fighting game experience on Joy-Cons and Pro Controllers:
 
-And finally, the icon resources in resources/icons fall under CC-BY 4.0 license; please see 
-[LICENSE](resources/icons/LICENSE) and https://creativecommons.org/licenses/by/4.0/ for details.
+| Action | Controller Mapping |
+| :--- | :--- |
+| **Punch** | **Y** and **B** |
+| **Kick** | **X** and **A** |
+| **Movement / Direction** | **D-Pad** & **Left Analog Stick** |
+| **Menu / Pause / Exit** | **Plus (+)** |
+| **Options / In-Game Menu** | **Minus (-)** |
 
-Contribute
-----------
-For guidelines on contributing, please see [CONTRIBUTING.md](CONTRIBUTING.md).
+---
 
-Contact
--------
-Discord: https://discord.gg/7CPPzab
+## 🛠 Modernization & Port Details
+
+- **devkitPro / devkitA64 Toolchain Support**: Built against modern devkitA64 toolchains (GCC 15.2.0, libnx 4.12.0).
+- **Mesa OpenGL Pipeline**: Uses `switch-mesa` and `switch-glad` with customized GLSL shaders.
+- **Embedded RomFS**: Shaders, default configurations, language string tables (`ENGLISH.DAT2`), and game controller databases are embedded directly into the NRO.
+- **Fixed Stage Hazard Graphics**: Resolved shader remap calculations and sentinel dimension handling for background hazard animations (e.g. fighter jet bullet impacts in Desert Arena).
+- **Audio & Sound**: High-quality music and SFX playback powered by `switch-sdl2_mixer`, `switch-opusfile`, and vendored `libxmp`.
+- **Clean Native Execution**: Disabled unbuffered debug logging to SD card to prevent performance bottlenecks.
+
+---
+
+## 🔨 Building from Source
+
+### Prerequisites
+- [devkitPro / devkitA64](https://devkitpro.org/wiki/Getting_Started) with `switch-dev`
+- Portlibs:
+  ```bash
+  sudo dkp-pacman -Syu switch-dev switch-sdl2 switch-sdl2_mixer switch-mesa switch-glad switch-enet switch-libpng switch-zlib switch-opusfile
+  ```
+
+### Compiling with Docker
+```bash
+docker run --rm -v $(pwd):/src -w /src devkitpro/devkita64:latest bash -c \
+  "cmake -B build-switch -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/Switch.cmake \
+   -DCMAKE_BUILD_TYPE=Release -DUSE_MESA=ON && cmake --build build-switch -j$(nproc)"
+```
+
+---
+
+## 📜 Credits & License
+
+- Original game by **Diversions Entertainment** and published by **Epic MegaGames** (1994).
+- Open-source engine by the [OpenOMF Team](https://github.com/omf2097/openomf).
+- Nintendo Switch port & modernizations by **Thorhax**.
+- Licensed under the [MIT License](LICENSE).
