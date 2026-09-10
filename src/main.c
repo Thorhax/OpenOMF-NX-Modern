@@ -60,7 +60,6 @@ int main(int argc, char *argv[]) {
 #if defined(__SWITCH__)
     romfsInit();
     socketInitializeDefault();
-    nxlinkStdio();
 #endif
     // Set up initial state for misc things
     char *ip = NULL;
@@ -188,8 +187,7 @@ int main(int argc, char *argv[]) {
     log_set_colors(false);
 #endif
 #if defined(__SWITCH__)
-    log_add_stderr(LOG_DEBUG, false);
-    log_set_level(LOG_DEBUG);
+    // Logging disabled on Switch
 #elif defined(DEBUGMODE)
     log_add_stderr(LOG_DEBUG, true);
     log_set_level(LOG_DEBUG);
@@ -211,10 +209,8 @@ int main(int argc, char *argv[]) {
     resource_path_create_dirs();
 
     // Initialize logfile writing now that we have the directories.
+#if !defined(__SWITCH__)
     const path log_filename = get_log_filename();
-#if defined(__SWITCH__)
-    log_add_file(path_c(&log_filename), LOG_DEBUG);
-#else
     log_add_file(path_c(&log_filename), LOG_INFO);
 #endif
 
